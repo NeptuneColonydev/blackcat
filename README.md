@@ -1,6 +1,8 @@
 # blackcat
 GMod CivilGamers MaxNet Hacking Script
 
+THIS PROGRAM IS CURRENTLY OUTDATED AND IS BEING UPDATED. PLEASE BE PATIENT
+
 Recommended install directory:
   r/blackcat
   
