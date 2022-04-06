@@ -1,6 +1,8 @@
 # blackcat
 GMod CivilGamers MaxNet Hacking Script
 
+I believe currently the spoof address alias doesn't work. Use at your own risk.
+
 Recommended install directory:
   r/blackcat
   
