@@ -11,8 +11,8 @@ Create new directory called blackcat with the command 'file createdir blackcat'
 Change into that directory using 'cd blackcat'
 
 Create 3 new files;
-blackcat.mscx
-dcrypt.mscx
+blackcat.mscx,
+dcrypt.mscx,
 bcat.man
 
 From the respository copy the files with their respetive names into these new files.
