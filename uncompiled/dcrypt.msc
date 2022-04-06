@@ -1,0 +1,74 @@
+using System;
+using Console;
+using Util;
+using String;
+using Array;
+
+class CryptoHelper {
+
+    string[] asciiTable = [
+        "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z",
+        "[", "\\", "]", "^", "_", "`",
+        "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"];
+       
+    string[] caeserTableLower = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"];
+    string[] caeserTableHigher = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"];
+   
+    constructor() {
+        Console.WriteLine("Credits to Hydro for CryptoHelper\n[CryptoHelper loaded]");
+    }
+   
+    function<string> CShift(string str, number offset) {
+        string result = "";
+        number length = String.Length(str);
+        number i = 0;
+       
+        while (i < length) {
+            i = i + 1;
+
+            string char = String.CharAt(str, i);
+            number charCode = Array.IndexOf(caeserTableLower, char);  
+            bool isLowerArray = (charCode != -1);
+           
+            if (isLowerArray == false) {
+                charCode = Array.IndexOf(caeserTableHigher, char);
+            }
+           
+            charCode = charCode + offset;
+   
+            if (charCode < 1) {
+                charCode = charCode + 26;
+            } else if (charCode > 26) {
+                charCode = charCode - 26;
+            }
+           
+            if (isLowerArray) {
+                result = result..caeserTableLower[charCode];
+            } else {
+                result = result..caeserTableHigher[charCode];
+            }
+        }
+       
+        return result;
+    }
+   
+    function<string> GetChars(string str) {
+        return GetCharsFromArray(String.Split(str, ","));
+    }
+   
+    function<string> GetCharsFromArray(string[] charArray) {
+        number charIndex = 1;
+        number arrayLength = Array.Length(charArray);
+       
+        string finishedStr = "";
+        while (charIndex <= arrayLength) {
+            number idx = Util.ToNumber(charArray[charIndex])-64;
+           
+            finishedStr = finishedStr..asciiTable[idx];
+           
+            charIndex = charIndex + 1;
+        }
+       
+        return finishedStr;
+    }  
+}
