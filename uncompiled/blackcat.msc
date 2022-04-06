@@ -25,6 +25,9 @@ string appDir = Application.GetFileDirectory();
 string[] cshift = new string[10];
 string getchar;
 bool hack = true;
+bool remoteCon = false;
+bool remoteStart = false;
+number index = 1;
 bool spoof = false;
 
 function cipher(string arg){
@@ -47,7 +50,11 @@ function cipher(string arg){
                 continue;
             }
         }
-        remoteShift();
+        if(spoof){
+            System.RunCommand("run spoof_address.exe "..targetIP);
+        }
+        index = 1;
+        remoteStart = true;
     }
 }
 
@@ -56,39 +63,35 @@ function remoteChar(){
         System.RunCommand("run spoof_address.exe "..targetIP);
     }
     System.RunCommand("remote connect "..targetIP.." "..getchar);
-    Console.Clear();
-    Console.WriteLine("[Remote Connection Established]");
-    spoof = false;
-}
-function remoteShift(){
-    if(spoof){
-        System.RunCommand("run spoof_address.exe "..targetIP);
-    }
-    number i = 1;
-    while(i <= Array.Length(cshift)){
-        System.RunCommand("remote connect "..targetIP.." "..cshift[i]);
-        i = i + 1;
-    }
-    Console.Clear();
-    Console.WriteLine("[Remote Connection Established]");
-    spoof = false;
 }
 
 function OnNetworkMessageReceived(number protocol, NTM message){
-    if(protocol != 121){
-        return;
+    if(protocol == 121){
+        bool check = message.ReadBool();
+        string hash = message.ReadString();
+        if(check){
+            hack = true;
+            cipher(hash);
+        }
     }
-    bool check = message.ReadBool();
-    string hash = message.ReadString();
-    
-    if(check){
-        hack = true;
-        cipher(hash);
+    if(protocol == 123){
+        bool check = message.ReadBool();
+        string hash = message.ReadString();
+        if(check){
+            remoteCon = true;
+            remoteStart = false;
+            Console.Clear();
+            Console.WriteLine("[Remote Connection Established]");
+        }
+    }
+    else{
+        return;
     }
 }
 
 function main(string[] args){
     if(args[2] == "-s"){
+        spoof = false;
         File.CreateDir(appDir, "tools");
         File.Write(appDir.."/tools", "hash_conceal.exe", "");
         File.Write(appDir.."/tools", "spoof_address.exe", "");
@@ -98,16 +101,26 @@ function main(string[] args){
         System.RunCommand("stop spoof_address.exe");
         System.RunCommand("run hash_conceal.exe");
         Console.Clear();
-        if(Array.Length(args) == 4){
-            if(args[3] == "sa"){
-                spoof = true;
-            }
-            targetIP = args[4];
-        }
-        else{
-            targetIP = args[3];
-        }
+        
+        targetIP = args[3];
         Console.WriteLine("[Target IP]: "..targetIP);
+        
+        hack = false;
+    }
+    if(args[2] == "-sS"){
+        File.CreateDir(appDir, "tools");
+        File.Write(appDir.."/tools", "hash_conceal.exe", "");
+        File.Write(appDir.."/tools", "spoof_address.exe", "");
+        System.RunCommand("cd tools");
+        Console.Clear();
+        
+        System.RunCommand("stop spoof_address.exe");
+        System.RunCommand("run hash_conceal.exe");
+        Console.Clear();
+        
+        targetIP = args[3];
+        Console.WriteLine("[Target IP]: "..targetIP);
+        spoof = true;
         
         hack = false;
     }
@@ -116,6 +129,8 @@ function main(string[] args){
         Console.WriteLine(manual.GetString());
     }
     if(args[2] == "-dc"){
+        spoof = false;
+        remoteCon = false;
         System.RunCommand("remote disconnect");
     }
     if(args[2] == "-bE"){
@@ -161,6 +176,15 @@ while(true){
     if(hack == false){
         Net.Start(120);
         Net.SendToAddress(targetIP);
+    }
+    if(remoteStart){
+        if(remoteCon == false){
+            System.RunCommand("remote connect "..targetIP.." "..cshift[index]);
+            index = index + 1;
+            if(index > 10){
+                remoteStart = false;
+            }
+        }
     }
     Event.Process();
 }
