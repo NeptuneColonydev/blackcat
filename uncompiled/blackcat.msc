@@ -1,0 +1,166 @@
+using Application;
+using System;
+using Console;
+using Event;
+using String;
+using File;
+using Encoding;
+using Net;
+using Array;
+
+include "dcrypt.mscx";
+CryptoHelper crypto = new CryptoHelper();
+
+StringResult admin = Application.RequestAdminPrivilege();
+if(admin.GetResult() == true){
+    Console.WriteLine("\n\n[blackcat exploit tool loaded]\n'bcat -h' for help\n\n");
+}
+else{
+    Console.WriteLine("blackcat error: ["..admin.GetString().."]");
+    Application.Exit();
+}
+
+string targetIP;
+string appDir = Application.GetFileDirectory();
+string[] cshift = new string[10];
+string getchar;
+bool hack = true;
+bool spoof = false;
+
+function cipher(string arg){
+    number counter = -5;
+    number array = 1;
+    
+    if(String.Contains(arg, ",")){
+        getchar = crypto.GetChars(arg);
+        remoteChar();
+    }
+    else{
+        while(counter <= 5){
+            if(counter != 0){
+                cshift[array] = crypto.CShift(arg, counter);
+                counter = counter + 1;
+                array = array + 1;
+            }
+            else{
+                counter = counter + 1;
+                continue;
+            }
+        }
+        remoteShift();
+    }
+}
+
+function remoteChar(){
+    if(spoof){
+        System.RunCommand("run spoof_address.exe "..targetIP);
+    }
+    System.RunCommand("remote connect "..targetIP.." "..getchar);
+    Console.Clear();
+    Console.WriteLine("[Remote Connection Established]");
+    spoof = false;
+}
+function remoteShift(){
+    if(spoof){
+        System.RunCommand("run spoof_address.exe "..targetIP);
+    }
+    number i = 1;
+    while(i <= Array.Length(cshift)){
+        System.RunCommand("remote connect "..targetIP.." "..cshift[i]);
+        i = i + 1;
+    }
+    Console.Clear();
+    Console.WriteLine("[Remote Connection Established]");
+    spoof = false;
+}
+
+function OnNetworkMessageReceived(number protocol, NTM message){
+    if(protocol != 121){
+        return;
+    }
+    bool check = message.ReadBool();
+    string hash = message.ReadString();
+    
+    if(check){
+        hack = true;
+        cipher(hash);
+    }
+}
+
+function main(string[] args){
+    if(args[2] == "-s"){
+        File.CreateDir(appDir, "tools");
+        File.Write(appDir.."/tools", "hash_conceal.exe", "");
+        File.Write(appDir.."/tools", "spoof_address.exe", "");
+        System.RunCommand("cd tools");
+        Console.Clear();
+        
+        System.RunCommand("stop spoof_address.exe");
+        System.RunCommand("run hash_conceal.exe");
+        Console.Clear();
+        if(Array.Length(args) == 4){
+            if(args[3] == "sa"){
+                spoof = true;
+            }
+            targetIP = args[4];
+        }
+        else{
+            targetIP = args[3];
+        }
+        Console.WriteLine("[Target IP]: "..targetIP);
+        
+        hack = false;
+    }
+    if(args[2] == "-h"){
+        StringResult manual = File.Read(appDir, "bcat.man");
+        Console.WriteLine(manual.GetString());
+    }
+    if(args[2] == "-dc"){
+        System.RunCommand("remote disconnect");
+    }
+    if(args[2] == "-bE"){
+        StringResult b64Enc = Encoding.Base64Encode(args[3]);
+        Console.WriteLine("[Base 64 Encode]: "..b64Enc.GetString());
+    }
+    if(args[2] == "-bD"){
+        StringResult b64Dec = Encoding.Base64Decode(args[3]);
+        Console.WriteLine("[Base 64 Decode]: "..b64Dec.GetString());
+    }
+    if(args[2] == "exit"){
+        System.RunCommand("remote disconnect");
+        System.RunCommand("stop spoof_address.exe");
+        System.RunCommand("stop hash_conceal.exe");
+        if(Console.GetCurrentDirectory() == appDir.."/tools"){
+            System.RunCommand("cd ..");
+        }
+        File.RemoveDir(appDir, "tools");
+        Console.Clear();
+        Application.Exit();
+    }
+}
+
+function onShCMD(string command){
+    Event.ClearEvents();
+    command = String.Trim(command);
+    if(String.Contains(command, "bcat")){
+        string[] args;
+        if(String.Contains(command, " ") == false){
+            Console.WriteLine("[Invalid Command]\ntry 'bcat -h' for help");
+        }
+        else{
+            args = String.Split(command, " ");
+        }
+        main(args);
+    }
+}
+
+Event.AddListener("IncomingNTM", "incoming_ntm", "OnNetworkMessageReceived");
+Event.AddListener("ConsoleCommand", "command", "onShCMD");
+
+while(true){
+    if(hack == false){
+        Net.Start(120);
+        Net.SendToAddress(targetIP);
+    }
+    Event.Process();
+}
