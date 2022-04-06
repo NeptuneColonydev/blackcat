@@ -80,8 +80,6 @@ function OnNetworkMessageReceived(number protocol, NTM message){
         if(check){
             remoteCon = true;
             remoteStart = false;
-            Console.Clear();
-            Console.WriteLine("[Remote Connection Established]");
         }
     }
     else{
@@ -91,6 +89,7 @@ function OnNetworkMessageReceived(number protocol, NTM message){
 
 function main(string[] args){
     if(args[2] == "-s"){
+        remoteCon = false;
         spoof = false;
         File.CreateDir(appDir, "tools");
         File.Write(appDir.."/tools", "hash_conceal.exe", "");
