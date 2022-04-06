@@ -3,7 +3,7 @@ GMod CivilGamers MaxNet Hacking Script
 
 Script Currently Doesn't Function. Please Wait For Update
 
-#How to install:
+# How to install:
 Navigate to root directory using 'cd ..' command. The directory should be '/r>'
 
 Create new directory called blackcat with the command 'file createdir blackcat'
@@ -19,7 +19,7 @@ From the respository copy the files with their respetive names into these new fi
 
 Once all files are copied you can now run blackcat.mscx using 'mnscript exec blackcat.mscx'
 
-#Misc
+# Misc
 
 I recommend you also remove hash_conceal.exe, bf_password.exe and spoof_address.exe from you r/programs directory as blackcat will automatically create these tools in a seperate directory for you.
 
