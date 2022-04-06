@@ -1,18 +1,16 @@
 [blackcat Manual]
-
+ 
 All blackcat commands start with the prefix 'bcat'
 All tools will be installed into a /tools dir and will be removed at the end of the session.
 When using blackcat you MUST use 'bcat exit' to close the program
-
+ 
 Commands:
     -s : Starts a bcat session. This command should be followed with the intended 'targetIP'
-        A session can also have spoof_address.exe enabled by typing sa before the 'targetIP'
-        Example:
-            'bcat -s sa <targetIP>'
-            
+        -sS : Same as -s however has spoof_address.exe active when connecting to target
+ 
     -dc : Disconnects from target
-    
+ 
     -bE : Base 64 Encode Tool
     -bD : Base 64 Decode Tool
-    
+ 
     exit : Stops the program [Ends all tools processes and removes /tools dir]
